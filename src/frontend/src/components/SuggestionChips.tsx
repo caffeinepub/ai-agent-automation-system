@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Lightbulb, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 
 interface SuggestionChipsProps {
@@ -11,22 +11,27 @@ export default function SuggestionChips({
   onSelect,
 }: SuggestionChipsProps) {
   return (
-    <div className="space-y-2">
-      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
-        Suggested Automations
-      </p>
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-1.5">
+        <Sparkles className="w-3 h-3 text-primary" />
+        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+          Smart Suggestions
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
         {suggestions.map((s, i) => (
           <motion.button
             key={s}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08, duration: 0.2 }}
+            type="button"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.07 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => onSelect(s)}
-            data-ocid={`chat.suggestion.button.${i + 1}`}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/25 text-[11px] font-medium text-primary hover:bg-primary/20 hover:border-primary/40 transition-all"
           >
-            <Sparkles className="w-3 h-3" />
+            <Lightbulb className="w-2.5 h-2.5" />
             {s}
           </motion.button>
         ))}

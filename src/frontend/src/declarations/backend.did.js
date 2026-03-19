@@ -9,11 +9,37 @@
 import { IDL } from '@icp-sdk/core/candid';
 
 export const Time = IDL.Int;
+export const AnalyticsSummary = IDL.Record({
+  'mostUsedCommands' : IDL.Vec(IDL.Text),
+  'totalTasks' : IDL.Nat,
+  'successCount' : IDL.Nat,
+  'failureCount' : IDL.Nat,
+});
+export const Credential = IDL.Record({
+  'service' : IDL.Text,
+  'value' : IDL.Text,
+  'name' : IDL.Text,
+});
 export const ExecutionLogEntry = IDL.Record({
   'status' : IDL.Text,
   'iconType' : IDL.Text,
   'stepName' : IDL.Text,
   'timestamp' : Time,
+});
+export const SavedAgent = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'createdAt' : Time,
+  'command' : IDL.Text,
+  'triggerCount' : IDL.Nat,
+});
+export const ScheduledTask = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'enabled' : IDL.Bool,
+  'command' : IDL.Text,
+  'nextRun' : Time,
+  'frequency' : IDL.Text,
 });
 export const Settings = IDL.Record({
   'googleSheetsId' : IDL.Text,
@@ -21,6 +47,7 @@ export const Settings = IDL.Record({
   'sheetTabName' : IDL.Text,
 });
 export const TaskHistoryEntry = IDL.Record({
+  'taskName' : IDL.Text,
   'taskId' : IDL.Nat,
   'timestamp' : Time,
   'success' : IDL.Bool,
@@ -28,15 +55,43 @@ export const TaskHistoryEntry = IDL.Record({
 });
 
 export const idlService = IDL.Service({
+  'addCredential' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
   'addExecutionLog' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
-  'addTaskHistory' : IDL.Func([IDL.Nat, IDL.Text, IDL.Bool], [], []),
+  'addSavedAgent' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
+  'addScheduledTask' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, Time],
+      [],
+      [],
+    ),
+  'addTaskHistory' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text, IDL.Bool], [], []),
   'clearExecutionLogs' : IDL.Func([], [], []),
   'clearTaskHistory' : IDL.Func([], [], []),
+  'deleteCredential' : IDL.Func([IDL.Text], [], []),
+  'deleteSavedAgent' : IDL.Func([IDL.Nat], [], []),
+  'deleteScheduledTask' : IDL.Func([IDL.Nat], [], []),
   'deleteTaskById' : IDL.Func([IDL.Nat], [], []),
+  'getAnalyticsSummary' : IDL.Func([], [AnalyticsSummary], ['query']),
+  'getCredentialByName' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(Credential)],
+      ['query'],
+    ),
+  'getCredentials' : IDL.Func([], [IDL.Vec(Credential)], ['query']),
   'getExecutionLogs' : IDL.Func([], [IDL.Vec(ExecutionLogEntry)], ['query']),
+  'getSavedAgentById' : IDL.Func([IDL.Nat], [IDL.Opt(SavedAgent)], ['query']),
+  'getSavedAgents' : IDL.Func([], [IDL.Vec(SavedAgent)], ['query']),
+  'getScheduledTaskById' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Opt(ScheduledTask)],
+      ['query'],
+    ),
+  'getScheduledTasks' : IDL.Func([], [IDL.Vec(ScheduledTask)], ['query']),
   'getSettings' : IDL.Func([], [IDL.Opt(Settings)], ['query']),
   'getTaskById' : IDL.Func([IDL.Nat], [TaskHistoryEntry], ['query']),
   'getTaskHistory' : IDL.Func([], [IDL.Vec(TaskHistoryEntry)], ['query']),
+  'updateCredential' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'updateSavedAgent' : IDL.Func([IDL.Nat, SavedAgent], [], []),
+  'updateScheduledTask' : IDL.Func([IDL.Nat, ScheduledTask], [], []),
   'updateSettings' : IDL.Func([Settings], [], []),
 });
 
@@ -44,11 +99,37 @@ export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
   const Time = IDL.Int;
+  const AnalyticsSummary = IDL.Record({
+    'mostUsedCommands' : IDL.Vec(IDL.Text),
+    'totalTasks' : IDL.Nat,
+    'successCount' : IDL.Nat,
+    'failureCount' : IDL.Nat,
+  });
+  const Credential = IDL.Record({
+    'service' : IDL.Text,
+    'value' : IDL.Text,
+    'name' : IDL.Text,
+  });
   const ExecutionLogEntry = IDL.Record({
     'status' : IDL.Text,
     'iconType' : IDL.Text,
     'stepName' : IDL.Text,
     'timestamp' : Time,
+  });
+  const SavedAgent = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'createdAt' : Time,
+    'command' : IDL.Text,
+    'triggerCount' : IDL.Nat,
+  });
+  const ScheduledTask = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'enabled' : IDL.Bool,
+    'command' : IDL.Text,
+    'nextRun' : Time,
+    'frequency' : IDL.Text,
   });
   const Settings = IDL.Record({
     'googleSheetsId' : IDL.Text,
@@ -56,6 +137,7 @@ export const idlFactory = ({ IDL }) => {
     'sheetTabName' : IDL.Text,
   });
   const TaskHistoryEntry = IDL.Record({
+    'taskName' : IDL.Text,
     'taskId' : IDL.Nat,
     'timestamp' : Time,
     'success' : IDL.Bool,
@@ -63,15 +145,47 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    'addCredential' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
     'addExecutionLog' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
-    'addTaskHistory' : IDL.Func([IDL.Nat, IDL.Text, IDL.Bool], [], []),
+    'addSavedAgent' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
+    'addScheduledTask' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, Time],
+        [],
+        [],
+      ),
+    'addTaskHistory' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Bool],
+        [],
+        [],
+      ),
     'clearExecutionLogs' : IDL.Func([], [], []),
     'clearTaskHistory' : IDL.Func([], [], []),
+    'deleteCredential' : IDL.Func([IDL.Text], [], []),
+    'deleteSavedAgent' : IDL.Func([IDL.Nat], [], []),
+    'deleteScheduledTask' : IDL.Func([IDL.Nat], [], []),
     'deleteTaskById' : IDL.Func([IDL.Nat], [], []),
+    'getAnalyticsSummary' : IDL.Func([], [AnalyticsSummary], ['query']),
+    'getCredentialByName' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(Credential)],
+        ['query'],
+      ),
+    'getCredentials' : IDL.Func([], [IDL.Vec(Credential)], ['query']),
     'getExecutionLogs' : IDL.Func([], [IDL.Vec(ExecutionLogEntry)], ['query']),
+    'getSavedAgentById' : IDL.Func([IDL.Nat], [IDL.Opt(SavedAgent)], ['query']),
+    'getSavedAgents' : IDL.Func([], [IDL.Vec(SavedAgent)], ['query']),
+    'getScheduledTaskById' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(ScheduledTask)],
+        ['query'],
+      ),
+    'getScheduledTasks' : IDL.Func([], [IDL.Vec(ScheduledTask)], ['query']),
     'getSettings' : IDL.Func([], [IDL.Opt(Settings)], ['query']),
     'getTaskById' : IDL.Func([IDL.Nat], [TaskHistoryEntry], ['query']),
     'getTaskHistory' : IDL.Func([], [IDL.Vec(TaskHistoryEntry)], ['query']),
+    'updateCredential' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'updateSavedAgent' : IDL.Func([IDL.Nat, SavedAgent], [], []),
+    'updateScheduledTask' : IDL.Func([IDL.Nat, ScheduledTask], [], []),
     'updateSettings' : IDL.Func([Settings], [], []),
   });
 };

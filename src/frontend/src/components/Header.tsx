@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, Search, Sparkles } from "lucide-react";
+import { Bell, Moon, Search, Sun, Zap } from "lucide-react";
+import { motion } from "motion/react";
 import type { Theme } from "../App";
 
 interface HeaderProps {
@@ -9,13 +10,16 @@ interface HeaderProps {
 
 export default function Header({ theme, onToggleTheme }: HeaderProps) {
   return (
-    <header className="h-16 flex-shrink-0 flex items-center px-5 border-b border-border bg-card shadow-xs">
+    <header className="h-16 flex-shrink-0 flex items-center px-5 border-b border-border bg-card/80 backdrop-blur-xl shadow-sm relative z-20">
       <div className="flex items-center gap-2.5 mr-8">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary to-[oklch(0.65_0.18_280)] shadow-sm">
-          <span className="text-white font-bold text-sm">N</span>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary to-[oklch(0.65_0.18_280)] shadow-sm glow-primary">
+          <Zap className="w-4 h-4 text-white" />
         </div>
-        <span className="font-semibold text-base text-foreground">
+        <span className="font-display font-semibold text-base text-foreground tracking-tight">
           Nexus AI
+        </span>
+        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
+          v2.0
         </span>
       </div>
 
@@ -24,10 +28,9 @@ export default function Header({ theme, onToggleTheme }: HeaderProps) {
           <button
             type="button"
             key={item}
-            data-ocid={`nav.${item.toLowerCase()}.link`}
             className={`text-sm font-medium transition-colors ${
               item === "Dashboard"
-                ? "text-primary border-b-2 border-primary pb-0.5"
+                ? "text-primary"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -40,33 +43,35 @@ export default function Header({ theme, onToggleTheme }: HeaderProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
         <input
           type="text"
-          placeholder="Search"
-          data-ocid="header.search_input"
-          className="pl-9 pr-4 py-1.5 text-sm bg-muted border border-border rounded-full focus:outline-none focus:ring-1 focus:ring-ring w-48 placeholder:text-muted-foreground"
+          placeholder="Search automations..."
+          className="pl-9 pr-4 py-1.5 text-sm bg-muted/60 border border-border rounded-full focus:outline-none focus:ring-1 focus:ring-ring w-52 placeholder:text-muted-foreground"
         />
       </div>
 
-      <div className="flex items-center gap-3">
-        <button
+      <div className="flex items-center gap-2">
+        <motion.button
           type="button"
-          data-ocid="header.theme.toggle"
           onClick={onToggleTheme}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted border border-border text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          whileTap={{ scale: 0.9 }}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
         >
-          <Sparkles className="w-3 h-3" />
+          {theme === "dark" ? (
+            <Moon className="w-3.5 h-3.5" />
+          ) : (
+            <Sun className="w-3.5 h-3.5" />
+          )}
           {theme === "dark" ? "Dark" : "Light"}
-        </button>
+        </motion.button>
         <button
           type="button"
           className="relative p-2 rounded-full hover:bg-muted transition-colors"
-          data-ocid="header.notifications.button"
         >
           <Bell className="w-4 h-4 text-muted-foreground" />
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-primary rounded-full" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full border border-background" />
         </button>
         <Avatar className="w-8 h-8">
-          <AvatarFallback className="text-xs font-semibold bg-primary text-primary-foreground">
-            AS
+          <AvatarFallback className="text-xs font-bold bg-gradient-to-br from-primary to-[oklch(0.65_0.18_280)] text-white">
+            AI
           </AvatarFallback>
         </Avatar>
       </div>

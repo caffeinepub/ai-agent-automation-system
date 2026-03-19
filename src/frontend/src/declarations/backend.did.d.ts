@@ -10,11 +10,37 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AnalyticsSummary {
+  'mostUsedCommands' : Array<string>,
+  'totalTasks' : bigint,
+  'successCount' : bigint,
+  'failureCount' : bigint,
+}
+export interface Credential {
+  'service' : string,
+  'value' : string,
+  'name' : string,
+}
 export interface ExecutionLogEntry {
   'status' : string,
   'iconType' : string,
   'stepName' : string,
   'timestamp' : Time,
+}
+export interface SavedAgent {
+  'id' : bigint,
+  'name' : string,
+  'createdAt' : Time,
+  'command' : string,
+  'triggerCount' : bigint,
+}
+export interface ScheduledTask {
+  'id' : bigint,
+  'name' : string,
+  'enabled' : boolean,
+  'command' : string,
+  'nextRun' : Time,
+  'frequency' : string,
 }
 export interface Settings {
   'googleSheetsId' : string,
@@ -22,6 +48,7 @@ export interface Settings {
   'sheetTabName' : string,
 }
 export interface TaskHistoryEntry {
+  'taskName' : string,
   'taskId' : bigint,
   'timestamp' : Time,
   'success' : boolean,
@@ -29,15 +56,34 @@ export interface TaskHistoryEntry {
 }
 export type Time = bigint;
 export interface _SERVICE {
+  'addCredential' : ActorMethod<[string, string, string], undefined>,
   'addExecutionLog' : ActorMethod<[string, string, string], undefined>,
-  'addTaskHistory' : ActorMethod<[bigint, string, boolean], undefined>,
+  'addSavedAgent' : ActorMethod<[bigint, string, string], undefined>,
+  'addScheduledTask' : ActorMethod<
+    [bigint, string, string, string, Time],
+    undefined
+  >,
+  'addTaskHistory' : ActorMethod<[bigint, string, string, boolean], undefined>,
   'clearExecutionLogs' : ActorMethod<[], undefined>,
   'clearTaskHistory' : ActorMethod<[], undefined>,
+  'deleteCredential' : ActorMethod<[string], undefined>,
+  'deleteSavedAgent' : ActorMethod<[bigint], undefined>,
+  'deleteScheduledTask' : ActorMethod<[bigint], undefined>,
   'deleteTaskById' : ActorMethod<[bigint], undefined>,
+  'getAnalyticsSummary' : ActorMethod<[], AnalyticsSummary>,
+  'getCredentialByName' : ActorMethod<[string], [] | [Credential]>,
+  'getCredentials' : ActorMethod<[], Array<Credential>>,
   'getExecutionLogs' : ActorMethod<[], Array<ExecutionLogEntry>>,
+  'getSavedAgentById' : ActorMethod<[bigint], [] | [SavedAgent]>,
+  'getSavedAgents' : ActorMethod<[], Array<SavedAgent>>,
+  'getScheduledTaskById' : ActorMethod<[bigint], [] | [ScheduledTask]>,
+  'getScheduledTasks' : ActorMethod<[], Array<ScheduledTask>>,
   'getSettings' : ActorMethod<[], [] | [Settings]>,
   'getTaskById' : ActorMethod<[bigint], TaskHistoryEntry>,
   'getTaskHistory' : ActorMethod<[], Array<TaskHistoryEntry>>,
+  'updateCredential' : ActorMethod<[string, string], undefined>,
+  'updateSavedAgent' : ActorMethod<[bigint, SavedAgent], undefined>,
+  'updateScheduledTask' : ActorMethod<[bigint, ScheduledTask], undefined>,
   'updateSettings' : ActorMethod<[Settings], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

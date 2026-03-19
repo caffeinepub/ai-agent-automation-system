@@ -100,28 +100,85 @@ export interface Settings {
     slackWebhookUrl: string;
     sheetTabName: string;
 }
+export interface AnalyticsSummary {
+    mostUsedCommands: Array<string>;
+    totalTasks: bigint;
+    successCount: bigint;
+    failureCount: bigint;
+}
 export type Time = bigint;
+export interface Credential {
+    service: string;
+    value: string;
+    name: string;
+}
+export interface ScheduledTask {
+    id: bigint;
+    name: string;
+    enabled: boolean;
+    command: string;
+    nextRun: Time;
+    frequency: string;
+}
+export interface SavedAgent {
+    id: bigint;
+    name: string;
+    createdAt: Time;
+    command: string;
+    triggerCount: bigint;
+}
 export interface TaskHistoryEntry {
+    taskName: string;
     taskId: bigint;
     timestamp: Time;
     success: boolean;
     commandText: string;
 }
 export interface backendInterface {
+    addCredential(name: string, value: string, service: string): Promise<void>;
     addExecutionLog(stepName: string, status: string, iconType: string): Promise<void>;
-    addTaskHistory(taskId: bigint, commandText: string, success: boolean): Promise<void>;
+    addSavedAgent(id: bigint, name: string, command: string): Promise<void>;
+    addScheduledTask(id: bigint, name: string, command: string, frequency: string, nextRun: Time): Promise<void>;
+    addTaskHistory(taskId: bigint, taskName: string, commandText: string, success: boolean): Promise<void>;
     clearExecutionLogs(): Promise<void>;
     clearTaskHistory(): Promise<void>;
+    deleteCredential(name: string): Promise<void>;
+    deleteSavedAgent(id: bigint): Promise<void>;
+    deleteScheduledTask(id: bigint): Promise<void>;
     deleteTaskById(taskId: bigint): Promise<void>;
+    getAnalyticsSummary(): Promise<AnalyticsSummary>;
+    getCredentialByName(name: string): Promise<Credential | null>;
+    getCredentials(): Promise<Array<Credential>>;
     getExecutionLogs(): Promise<Array<ExecutionLogEntry>>;
+    getSavedAgentById(id: bigint): Promise<SavedAgent | null>;
+    getSavedAgents(): Promise<Array<SavedAgent>>;
+    getScheduledTaskById(id: bigint): Promise<ScheduledTask | null>;
+    getScheduledTasks(): Promise<Array<ScheduledTask>>;
     getSettings(): Promise<Settings | null>;
     getTaskById(taskId: bigint): Promise<TaskHistoryEntry>;
     getTaskHistory(): Promise<Array<TaskHistoryEntry>>;
+    updateCredential(name: string, newValue: string): Promise<void>;
+    updateSavedAgent(id: bigint, updatedAgent: SavedAgent): Promise<void>;
+    updateScheduledTask(id: bigint, updatedTask: ScheduledTask): Promise<void>;
     updateSettings(newSettings: Settings): Promise<void>;
 }
-import type { Settings as _Settings } from "./declarations/backend.did.d.ts";
+import type { Credential as _Credential, SavedAgent as _SavedAgent, ScheduledTask as _ScheduledTask, Settings as _Settings } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async addCredential(arg0: string, arg1: string, arg2: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addCredential(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addCredential(arg0, arg1, arg2);
+            return result;
+        }
+    }
     async addExecutionLog(arg0: string, arg1: string, arg2: string): Promise<void> {
         if (this.processError) {
             try {
@@ -136,17 +193,45 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async addTaskHistory(arg0: bigint, arg1: string, arg2: boolean): Promise<void> {
+    async addSavedAgent(arg0: bigint, arg1: string, arg2: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.addTaskHistory(arg0, arg1, arg2);
+                const result = await this.actor.addSavedAgent(arg0, arg1, arg2);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addTaskHistory(arg0, arg1, arg2);
+            const result = await this.actor.addSavedAgent(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async addScheduledTask(arg0: bigint, arg1: string, arg2: string, arg3: string, arg4: Time): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addScheduledTask(arg0, arg1, arg2, arg3, arg4);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addScheduledTask(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
+    async addTaskHistory(arg0: bigint, arg1: string, arg2: string, arg3: boolean): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addTaskHistory(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addTaskHistory(arg0, arg1, arg2, arg3);
             return result;
         }
     }
@@ -178,6 +263,48 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteCredential(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteCredential(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteCredential(arg0);
+            return result;
+        }
+    }
+    async deleteSavedAgent(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteSavedAgent(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteSavedAgent(arg0);
+            return result;
+        }
+    }
+    async deleteScheduledTask(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteScheduledTask(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteScheduledTask(arg0);
+            return result;
+        }
+    }
     async deleteTaskById(arg0: bigint): Promise<void> {
         if (this.processError) {
             try {
@@ -189,6 +316,48 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.deleteTaskById(arg0);
+            return result;
+        }
+    }
+    async getAnalyticsSummary(): Promise<AnalyticsSummary> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAnalyticsSummary();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAnalyticsSummary();
+            return result;
+        }
+    }
+    async getCredentialByName(arg0: string): Promise<Credential | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCredentialByName(arg0);
+                return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCredentialByName(arg0);
+            return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCredentials(): Promise<Array<Credential>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCredentials();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCredentials();
             return result;
         }
     }
@@ -206,18 +375,74 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getSavedAgentById(arg0: bigint): Promise<SavedAgent | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getSavedAgentById(arg0);
+                return from_candid_opt_n2(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getSavedAgentById(arg0);
+            return from_candid_opt_n2(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getSavedAgents(): Promise<Array<SavedAgent>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getSavedAgents();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getSavedAgents();
+            return result;
+        }
+    }
+    async getScheduledTaskById(arg0: bigint): Promise<ScheduledTask | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getScheduledTaskById(arg0);
+                return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getScheduledTaskById(arg0);
+            return from_candid_opt_n3(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getScheduledTasks(): Promise<Array<ScheduledTask>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getScheduledTasks();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getScheduledTasks();
+            return result;
+        }
+    }
     async getSettings(): Promise<Settings | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getSettings();
-                return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n4(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getSettings();
-            return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n4(this._uploadFile, this._downloadFile, result);
         }
     }
     async getTaskById(arg0: bigint): Promise<TaskHistoryEntry> {
@@ -248,6 +473,48 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async updateCredential(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateCredential(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateCredential(arg0, arg1);
+            return result;
+        }
+    }
+    async updateSavedAgent(arg0: bigint, arg1: SavedAgent): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateSavedAgent(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateSavedAgent(arg0, arg1);
+            return result;
+        }
+    }
+    async updateScheduledTask(arg0: bigint, arg1: ScheduledTask): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateScheduledTask(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateScheduledTask(arg0, arg1);
+            return result;
+        }
+    }
     async updateSettings(arg0: Settings): Promise<void> {
         if (this.processError) {
             try {
@@ -263,7 +530,16 @@ export class Backend implements backendInterface {
         }
     }
 }
-function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Settings]): Settings | null {
+function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Credential]): Credential | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SavedAgent]): SavedAgent | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ScheduledTask]): ScheduledTask | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Settings]): Settings | null {
     return value.length === 0 ? null : value[0];
 }
 export interface CreateActorOptions {
